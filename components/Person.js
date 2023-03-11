@@ -1,11 +1,13 @@
 import React from 'react'
+import { useRouter } from 'next/router'
 
 export const Person = ((props) => {
+  const router = useRouter()
   const Profile = props.Profile
   const Name = props.Name
   const Data = props.Data
   return (
-    <div className='flex my-[22px] w-full h-[72px] bg-white rounded-[20px] bg-gradient-to-tr from-[#FCFCFD] to-[#FCFCFD]/80 drop-shadow-[0_0px_64px_rgba(15,15,15,0.10)]'>
+    <div onClick={() => router.push('/chat/' + Name)} className='flex my-[22px] w-full h-[72px] bg-white rounded-[20px] bg-gradient-to-tr from-[#FCFCFD] to-[#FCFCFD]/80 drop-shadow-[0_0px_64px_rgba(15,15,15,0.10)]'>
       <div className='flex-none rounded-full h-[48px] w-[48px] mx-[16px] my-[12px]'>
         <img className='h-full w-full rounded-full' src={Profile ? Profile : 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'}></img>
       </div>
