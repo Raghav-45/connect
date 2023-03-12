@@ -9,10 +9,25 @@ export default function login() {
   const { signInWithGoogle, login } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [username, setUsername] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   // const mounted = useRef(false)
   // const location = useLocation()
   const mounted = useMounted()
+
+  const RegisterUser = async () => {
+    // console.log(MessageInput)
+
+    // await addDoc(collection(db, "Concept"), {
+    //   From: currentUser.uid,
+    //   To: 'Bot',
+    //   Message: MessageInput,
+    //   // CreatedAt: Timestamp.fromDate(new Date(date.getTime())),
+    //   CreatedAt: date.getTime()
+    // }).finally(() => {
+    //   // setIsSubmitting(false);
+    // });
+  }
 
   function handleRedirectToOrBack() {
     router.replace('/')
@@ -22,67 +37,6 @@ export default function login() {
     //   router.replace('/profile')
     // }
   }
-
-  // return (
-  //       <chakra.form
-  //         onSubmit={async e => {
-  //           e.preventDefault()
-  //           if (!email || !password) {
-  //             console.log('Credentials not valid.')
-  //             return
-  //           }
-  //           // your login logic here
-  //           setIsSubmitting(true)
-  //           login(email, password)
-  //             .then(res => {
-  //               // handleRedirectToOrBack()
-  //             })
-  //             .catch(error => {
-  //               console.log(error.message)
-  //               // toast({
-  //               //   description: error.message,
-  //               //   status: 'error',
-  //               //   duration: 9000,
-  //               //   isClosable: true,
-  //               // })
-  //             })
-  //             .finally(() => {
-  //               // setTimeout(() => {
-  //               //   mounted.current && setIsSubmitting(false)
-  //               //   console.log(mounted.current)
-  //               // }, 1000)
-  //               mounted.current && setIsSubmitting(false)
-  //             })
-  //         }}
-  //       >
-
-  //       <input value={email} onChange={e => setEmail(e.target.value)}></input>
-  //       <input value={password} onChange={e => setPassword(e.target.value)} required></input>
-        
-  //         <Stack spacing='6'>
-  //           <Button
-  //             type='submit'
-  //             colorScheme='blue'
-  //             size='lg'
-  //             fontSize='md'
-  //             isLoading={isSubmitting}
-  //           >
-  //             Sign in
-  //           </Button>
-  //         </Stack>
-  //       <Button
-  //         onClick={() =>
-  //           signInWithGoogle()
-  //             .then(user => {
-  //               handleRedirectToOrBack()
-  //               console.log(user)
-  //             })
-  //             .catch(e => console.log(e.message))
-  //         }
-  //       >
-  //         Sign in with Google
-  //       </Button>
-  // )
 
   return (
     <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -114,6 +68,7 @@ export default function login() {
                       setIsSubmitting(true)
                       login(email, password)
                         .then(res => {
+                          RegisterUser()
                           handleRedirectToOrBack()
                         })
                         .catch(error => {
@@ -136,6 +91,22 @@ export default function login() {
           >
             <input type="hidden" name="remember" defaultValue="true" />
             <div className="-space-y-px rounded-md shadow-sm">
+              <div>
+                <label htmlFor="username" className="sr-only">
+                  Username
+                </label>
+                <input
+                  value={username}
+                  onChange={e => setUsername(e.target.value)}
+                  id="username"
+                  name="username"
+                  type="text"
+                  autoComplete="username"
+                  required
+                  className="relative block w-full rounded-t-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  placeholder="Username"
+                />
+              </div>
               <div>
                 <label htmlFor="email-address" className="sr-only">
                   Email address

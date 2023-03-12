@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react'
+import { AvatarIcon } from '../components/Avatar'
 import { useAuth } from '../contexts/AuthContext'
 import { FiSearch } from 'react-icons/fi'
 import { Person } from '@/components/Person';
@@ -37,9 +38,10 @@ export default function Home() {
             <input ref={inputRef} value={SearchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder='@username' className='flex-1 w-[0px] h-[18px] outline-none transition-all duration-500'/>
           </div>
         </div>
-        <div className='flex-none border border-[#FCFCFD]/50 rounded-full ml-[8px] h-[40px] w-[40px] order-last'>
+        {/* <div className='flex-none border border-[#FCFCFD]/50 rounded-full ml-[8px] h-[40px] w-[40px] order-last'>
           <img className='h-full w-full rounded-full' src={currentUser.photoURL} alt=''></img>
-        </div>
+        </div> */}
+        <AvatarIcon Image={currentUser.photoURL}/>
       </div>
 
       {/* <Person_SearchResult SearchQuery={SearchQuery}/> */}
