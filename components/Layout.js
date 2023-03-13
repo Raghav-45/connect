@@ -12,7 +12,7 @@ export default function Layout({ children, title = 'Connect' }) {
   const router = useRouter()
   // console.log(router.pathname)
   return (
-    <div className='h-full pt-[24px] px-[20px] bg-center'>
+    <div className='h-full bg-center'>
 
       {/* <TopBar /> */}
 
