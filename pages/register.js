@@ -18,13 +18,21 @@ export default function login() {
   // const location = useLocation()
   const mounted = useMounted()
 
+  function GenerateProfile(q) {
+    // function getBgColor() {
+    //   const c = ['80C271','5AACCF','b6e3f4','c0aede','d1d4f9']
+    //   return c[Math.floor(Math.random()*c.length)]
+    // }
+    return ('https://api.dicebear.com/5.x/personas/svg?flip=false&skinColor=ecad80&backgroundColor=' + 'b6e3f4' + '&seed=Aneka' + q)
+  }
+
   const RegisterUser = async (username, email, password) => {
     // console.log(MessageInput)
     register(email, password)
       .then(async res => {
         await setDoc(doc(db, "UserDetailsV1", res.user.uid), {
           email: res.user.email,
-          photoURL: res.user?.photoURL ? res.user.photoURL : '',
+          photoURL: res.user?.photoURL ? res.user.photoURL : GenerateProfile(res.user.email),
           username: username,
           uid: res.user.uid,
         })
