@@ -17,6 +17,7 @@ export default function Chat() {
   const [MessageInput, setMessageInput] = useState()
   const [Chats, setChats] = useState()
   const [IsLoading, setIsLoading] = useState(true)
+  const [ChattingWith, setChattingWith] = useState()
 
   function SortByTime(a) {
     a.sort(function(a, b){return a.CreatedAt - b.CreatedAt})
@@ -28,7 +29,7 @@ export default function Chat() {
 
     await addDoc(collection(db, "Concept"), {
       From: currentUser.uid,
-      To: 'Bot',
+      To: ChattingWith.uid,
       Message: MessageInput,
       // CreatedAt: Timestamp.fromDate(new Date(date.getTime())),
       CreatedAt: date.getTime()
@@ -37,20 +38,39 @@ export default function Chat() {
     });
   }
 
+  const GetUserDetailsbyUsername = async (usern) => {
+    const q = query(collection(db, "UserDetailsV1"), where("username", "==", usern));
+
+    const querySnapshot = await getDocs(q).then(e => e.forEach((doc) => {setChattingWith(doc.data())}));
+    // querySnapshot.forEach((doc) => {
+    //   // doc.data() is never undefined for query doc snapshots
+    //   console.log(doc.id, " => ", doc.data());
+    // });
+    // console.log(querySnapshot.forEach((doc) => {setChattingWith(doc.data())}))
+  }
+
   useEffect(() => {
-    
-    const q = query(collection(db, "Concept"));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const cities = [];
-      querySnapshot.forEach((doc) => {
-          cities.push(doc.data());
+    if (ChattingWith?.uid) {
+      const q = query(collection(db, "Concept"), where("To", "==", ChattingWith.uid), where("From", "==", currentUser.uid));
+      // const q = query(collection(db, "Concept"), where('From', 'in', [ChattingWith.uid, currentUser.uid]), where('To', 'in', [ChattingWith.uid, currentUser.uid]));
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const cities = [];
+        querySnapshot.forEach((doc) => {
+            cities.push(doc.data());
+        });
+        setChats(cities)
+        setIsLoading(false)
+        // console.log("Current cities in CA: ", cities);
       });
-      setChats(cities)
-      setIsLoading(false)
-      // console.log("Current cities in CA: ", cities);
-    });
-    
-  }, [])
+    }
+  }, [ChattingWith])
+
+  useEffect(() => {
+    if (username && username.length) {
+      GetUserDetailsbyUsername(username)
+    }
+  }, [username])
+  
   
   if ( IsLoading ) {return (<div>Loading...</div>)}
 
@@ -59,11 +79,11 @@ export default function Chat() {
       <div className='flex flex-none my-[0px] w-full h-[56px] bg-gradient-to-tr from-[#FCFCFD] to-[#FCFCFD]/80 drop-shadow-[0_0px_64px_rgba(15,15,15,0.10)]'>
         <Link href="/" className='my-auto'><HiArrowSmLeft className='h-[28px] w-[40px] text-[#130F26]'/></Link>
         <div className='flex-none rounded-full h-auto w-auto mx-[12px] my-[8px]'>
-          <img className='h-full w-full rounded-full' src='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' alt=''></img>
+          <img className='h-full w-full rounded-full' src={ChattingWith.photoURL} alt=''></img>
         </div>
         <div className='flex-auto relative py-[12px]'>
           <div className='flex flex-col h-full justify-between'>
-            <p className='font-semibold text-[16px] leading-[16px]'>{username}</p>
+            <p className='font-semibold text-[16px] leading-[16px]'>{ChattingWith.username}</p>
             <div className='flex justify-between'>
               <p className='text-gray-500 text-[14px] leading-[14px]'>Active Now</p>
               <div className='flex justify-between order-last mr-[16px] hidden'>

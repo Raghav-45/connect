@@ -1,12 +1,15 @@
 import React, { useState } from 'react'
+import { doc, setDoc } from "firebase/firestore"
 import { useRouter } from 'next/router'
 import { useAuth } from '../contexts/AuthContext'
 import useMounted from '../hooks/useMounted'
 import { FiSearch } from 'react-icons/fi'
 
+import { db } from '../utils/init-firebase'
+
 export default function login() {
   const router = useRouter()
-  const { signInWithGoogle, login } = useAuth()
+  const { currentUser, signInWithGoogle, login, register } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [username, setUsername] = useState('')
@@ -15,18 +18,23 @@ export default function login() {
   // const location = useLocation()
   const mounted = useMounted()
 
-  const RegisterUser = async () => {
+  const RegisterUser = async (username, email, password) => {
     // console.log(MessageInput)
-
-    // await addDoc(collection(db, "Concept"), {
-    //   From: currentUser.uid,
-    //   To: 'Bot',
-    //   Message: MessageInput,
-    //   // CreatedAt: Timestamp.fromDate(new Date(date.getTime())),
-    //   CreatedAt: date.getTime()
-    // }).finally(() => {
-    //   // setIsSubmitting(false);
-    // });
+    register(email, password)
+      .then(async res => {
+        await setDoc(doc(db, "UserDetailsV1", res.user.uid), {
+          email: res.user.email,
+          photoURL: res.user?.photoURL ? res.user.photoURL : '',
+          username: username,
+          uid: res.user.uid,
+        })
+      })
+      .catch(error => {
+        console.log(error.message)
+      })
+      .finally(() => {
+        mounted.current && setIsSubmitting(false)
+      })
   }
 
   function handleRedirectToOrBack() {
@@ -66,27 +74,8 @@ export default function login() {
                       }
                       // your login logic here
                       setIsSubmitting(true)
-                      login(email, password)
-                        .then(res => {
-                          RegisterUser()
-                          handleRedirectToOrBack()
-                        })
-                        .catch(error => {
-                          console.log(error.message)
-                          // toast({
-                          //   description: error.message,
-                          //   status: 'error',
-                          //   duration: 9000,
-                          //   isClosable: true,
-                          // })
-                        })
-                        .finally(() => {
-                          // setTimeout(() => {
-                          //   mounted.current && setIsSubmitting(false)
-                          //   console.log(mounted.current)
-                          // }, 1000)
-                          mounted.current && setIsSubmitting(false)
-                        })
+                      RegisterUser(username, email, password)
+                      handleRedirectToOrBack()
                     }}
           >
             <input type="hidden" name="remember" defaultValue="true" />

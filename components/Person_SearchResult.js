@@ -8,17 +8,19 @@ export const Person_SearchResult = ((props) => {
   const [SearchResults, setSearchResults] = useState({ExactMatch: [], SimilarMatch: [],})
 
   const [SearchResults_tst, setSearchResults_tst] = useState()
+  const [IsLoading, setIsLoading] = useState(true)
 
   const SearchContent = async (q) => {
     const Result = {ExactMatch: [], SimilarMatch: [],}
 
-    const q1 = query(collection(db, "UserDetails"), where("Username", "==", q))
+    const q1 = query(collection(db, "UserDetailsV1"), where("username", "==", q))
     const querySnapshot1 = await getDocs(q1);
     querySnapshot1.forEach((doc) => {
       // // doc.data() is never undefined for query doc snapshots
       Result.ExactMatch = doc.data()
       setSearchResults_tst(doc.data())
-      console.log(SearchResults_tst)
+      setIsLoading(false)
+      // console.log(SearchResults_tst)
       // console.log(doc.id, " => ", doc.data());
     });
 
@@ -35,7 +37,7 @@ export const Person_SearchResult = ((props) => {
   }
 
   useEffect(() => {
-    let timerOut = setTimeout(() => {SearchContent(SearchQuery)}, 500)
+    let timerOut = setTimeout(() => {setIsLoading(true); SearchContent(SearchQuery);}, 500)
     return () => clearTimeout(timerOut)
   }, [SearchQuery])
 
@@ -55,8 +57,7 @@ export const Person_SearchResult = ((props) => {
   // }, [SearchQuery])
   
 
-  if (SearchResults_tst.length ) {return (
-    <Person Name={'Raghav'} Profile={SearchResults_tst.PhotoURL} />
-    // <div>g</div>
-  )}
+  if (!IsLoading) {
+    return (<Person Name={SearchResults_tst.username} Profile={SearchResults_tst.photoURL} />)
+  }
 })
