@@ -18,6 +18,11 @@ export default function Chat() {
   const [Chats, setChats] = useState()
   const [IsLoading, setIsLoading] = useState(true)
   const [ChattingWith, setChattingWith] = useState()
+  
+  const [ChatsByMe, setChatsByMe] = useState()
+  const [ChatsByThem, setChatsByThem] = useState()
+  const [IsChatByMeLoading, setIsChatByMeLoading] = useState(true)
+  const [IsChatByThemLoading, setIsChatByThemLoading] = useState(true)
 
   function SortByTime(a) {
     a.sort(function(a, b){return a.CreatedAt - b.CreatedAt})
@@ -51,15 +56,39 @@ export default function Chat() {
 
   useEffect(() => {
     if (ChattingWith?.uid) {
-      const q = query(collection(db, "Concept"), where("To", "==", ChattingWith.uid), where("From", "==", currentUser.uid));
+      // const q = query(collection(db, "Concept"), where("To", "==", ChattingWith.uid), where("From", "==", currentUser.uid));
+      // // const q = query(collection(db, "Concept"), where('From', 'in', [ChattingWith.uid, currentUser.uid]), where('To', 'in', [ChattingWith.uid, currentUser.uid]));
+      // const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      //   const cities = [];
+      //   querySnapshot.forEach((doc) => {
+      //       cities.push(doc.data());
+      //   });
+      //   setChats(cities)
+      //   setIsLoading(false)
+      //   // console.log("Current cities in CA: ", cities);
+      // });
+
+      const qm1 = query(collection(db, "Concept"), where("To", "==", ChattingWith.uid), where("From", "==", currentUser.uid));
       // const q = query(collection(db, "Concept"), where('From', 'in', [ChattingWith.uid, currentUser.uid]), where('To', 'in', [ChattingWith.uid, currentUser.uid]));
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const unsubscribem1 = onSnapshot(qm1, (querySnapshot) => {
         const cities = [];
         querySnapshot.forEach((doc) => {
             cities.push(doc.data());
         });
-        setChats(cities)
-        setIsLoading(false)
+        setChatsByMe(cities)
+        setIsChatByMeLoading(false)
+        // console.log("Current cities in CA: ", cities);
+      });
+
+      const qm2 = query(collection(db, "Concept"), where("From", "==", ChattingWith.uid), where("To", "==", currentUser.uid));
+      // const q = query(collection(db, "Concept"), where('From', 'in', [ChattingWith.uid, currentUser.uid]), where('To', 'in', [ChattingWith.uid, currentUser.uid]));
+      const unsubscribem2 = onSnapshot(qm2, (querySnapshot) => {
+        const cities = [];
+        querySnapshot.forEach((doc) => {
+            cities.push(doc.data());
+        });
+        setChatsByThem(cities)
+        setIsChatByThemLoading(false)
         // console.log("Current cities in CA: ", cities);
       });
     }
@@ -72,7 +101,7 @@ export default function Chat() {
   }, [username])
   
   
-  if ( IsLoading ) {return (<div>Loading...</div>)}
+  if ( IsChatByThemLoading ) {return (<div>Loading...</div>)}
 
   return (
     <div className='flex flex-col h-screen pt-[0px] px-[0px] bg-gradient-to-tr from-[#26292F06] to-[#353D4C12]'>
@@ -95,7 +124,7 @@ export default function Chat() {
         </div>
       </div>
       <div className='flex flex-col flex-1 px-2 py-1 mb-[76px]'>
-        {SortByTime(Chats).map((elem) => <Message Message={elem.Message} CreatedAt={'1 Jan'} SentByMe={elem.From == currentUser.uid} />)}
+        {SortByTime(ChatsByMe.concat(ChatsByThem)).map((elem) => <Message Message={elem.Message} CreatedAt={'1 Jan'} SentByMe={elem.From == currentUser.uid} />)}
       </div>
       {/* <div className='flex flex-none flex-row w-full h-[48px] px-[12px] mb-[12px]'>
         <input value={MessageInput} onChange={(e) => setMessageInput(e.target.value)} type='text' name='Message' className='h-full w-full pl-[20px] rounded-full' placeholder='Type message...' ></input>
