@@ -135,7 +135,7 @@ export default function Chat() {
       <footer className='bg-gradient-to-t from-black/10 to-black/5 backdrop-blur-lg fixed inset-x-0 bottom-0'>
         <div className='flex flex-none flex-row w-full h-[48px] px-[12px] my-[12px]'>
           <input value={MessageInput} onChange={(e) => setMessageInput(e.target.value)} type='text' name='Message' className='h-full w-full pl-[20px] rounded-full' placeholder='Type message...' ></input>
-          <button onClick={() => SendMessage()} className='flex-none flex ml-[8px] aspect-square border border-[#FCFCFD]/60 rounded-full cursor-pointer h-full w-auto bg-[#FCFCFD]' style={{'-webkit-tap-highlight-color': 'transparent'}} >
+          <button onClick={() => {setMessageInput(''); SendMessage();}} className='flex-none flex ml-[8px] aspect-square border border-[#FCFCFD]/60 rounded-full cursor-pointer h-full w-auto bg-[#FCFCFD]' style={{'-webkit-tap-highlight-color': 'transparent'}} >
             <IoSend className='h-[18px] w-[18px] text-[#130F26] m-auto'/>
           </button>
         </div>

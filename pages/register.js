@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { doc, setDoc } from "firebase/firestore"
+import { updateProfile } from 'firebase/auth'
 import { useRouter } from 'next/router'
 import { useAuth } from '../contexts/AuthContext'
 import useMounted from '../hooks/useMounted'
@@ -30,6 +31,7 @@ export default function login() {
     // console.log(MessageInput)
     register(email, password)
       .then(async res => {
+        !res.user?.photoURL && updateProfile(res.user, {photoURL: GenerateProfile(res.user.email)})
         await setDoc(doc(db, "UserDetailsV1", res.user.uid), {
           email: res.user.email,
           photoURL: res.user?.photoURL ? res.user.photoURL : GenerateProfile(res.user.email),
