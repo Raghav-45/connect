@@ -56,40 +56,20 @@ export default function Chat() {
 
   useEffect(() => {
     if (ChattingWith?.uid) {
-      // const q = query(collection(db, "Concept"), where("To", "==", ChattingWith.uid), where("From", "==", currentUser.uid));
-      // // const q = query(collection(db, "Concept"), where('From', 'in', [ChattingWith.uid, currentUser.uid]), where('To', 'in', [ChattingWith.uid, currentUser.uid]));
-      // const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      //   const cities = [];
-      //   querySnapshot.forEach((doc) => {
-      //       cities.push(doc.data());
-      //   });
-      //   setChats(cities)
-      //   setIsLoading(false)
-      //   // console.log("Current cities in CA: ", cities);
-      // });
-
-      const qm1 = query(collection(db, "Concept"), where("To", "==", ChattingWith.uid), where("From", "==", currentUser.uid));
-      // const q = query(collection(db, "Concept"), where('From', 'in', [ChattingWith.uid, currentUser.uid]), where('To', 'in', [ChattingWith.uid, currentUser.uid]));
-      const unsubscribem1 = onSnapshot(qm1, (querySnapshot) => {
-        const cities = [];
-        querySnapshot.forEach((doc) => {
-            cities.push(doc.data());
-        });
-        setChatsByMe(cities)
+      const q1 = query(collection(db, "Concept"), where("To", "==", ChattingWith.uid), where("From", "==", currentUser.uid));
+      const unsubscribe1 = onSnapshot(q1, (querySnapshot) => {
+        const data = [];
+        querySnapshot.forEach((doc) => {data.push(doc.data())})
+        setChatsByMe(data)
         setIsChatByMeLoading(false)
-        // console.log("Current cities in CA: ", cities);
       });
 
-      const qm2 = query(collection(db, "Concept"), where("From", "==", ChattingWith.uid), where("To", "==", currentUser.uid));
-      // const q = query(collection(db, "Concept"), where('From', 'in', [ChattingWith.uid, currentUser.uid]), where('To', 'in', [ChattingWith.uid, currentUser.uid]));
-      const unsubscribem2 = onSnapshot(qm2, (querySnapshot) => {
-        const cities = [];
-        querySnapshot.forEach((doc) => {
-            cities.push(doc.data());
-        });
-        setChatsByThem(cities)
+      const q2 = query(collection(db, "Concept"), where("From", "==", ChattingWith.uid), where("To", "==", currentUser.uid));
+      const unsubscribe2 = onSnapshot(q2, (querySnapshot) => {
+        const data = [];
+        querySnapshot.forEach((doc) => {data.push(doc.data())})
+        setChatsByThem(data)
         setIsChatByThemLoading(false)
-        // console.log("Current cities in CA: ", cities);
       });
     }
   }, [ChattingWith])

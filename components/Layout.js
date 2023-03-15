@@ -23,7 +23,7 @@ export default function Layout({ children, title = 'Connect' }) {
           <div className='grid grid-cols-3 gap-0 h-14 mx-5 text-xl text-center'>
             <Link href='/' className='flex h-full w-full align-middle' replace><AiFillHome className='m-auto'/></Link>
             <Link href='/search' className='flex h-full w-full align-middle' replace><FiSearch className='m-auto'/></Link>
-            <Link href='/Profile' className='flex h-full w-full align-middle' replace><BsFillPersonBadgeFill className='m-auto'/></Link>
+            <Link href='/profile' className='flex h-full w-full align-middle' replace><BsFillPersonBadgeFill className='m-auto'/></Link>
           </div>
         </footer>
       }

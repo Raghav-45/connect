@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { collection, query, onSnapshot } from 'firebase/firestore'
+import { collection, query, onSnapshot, where, doc, getDoc } from 'firebase/firestore'
 import { db } from '../utils/init-firebase'
 import { AvatarIcon } from '../components/Avatar'
 import { useAuth } from '../contexts/AuthContext'
@@ -7,11 +7,11 @@ import { FiSearch } from 'react-icons/fi'
 import { Person } from '@/components/Person';
 import { Person_SearchResult } from '@/components/Person_SearchResult';
 
-export default function Home() {
+export default function ProfilePage() {
   const [ShowSearchBox, setShowSearchBox] = useState(false)
   const [SearchQuery, setSearchQuery] = useState('')
-  const [UserList, setUserList] = useState()
-  const [IsUserListLoading, setIsUserListLoading] = useState(true)
+  const [ProfileData, setProfileData] = useState()
+  const [IsProfileDataLoading, setIsProfileDataLoading] = useState(true)
   const inputRef = useRef(null);
   const r = Array.from(Array(10).keys())
 
@@ -27,19 +27,16 @@ export default function Home() {
   
   const { currentUser } = useAuth()
 
-  const SearchContent = async () => {
-    const qm1 = query(collection(db, "UserDetailsV1"));
-    const unsub = onSnapshot(qm1, (querySnapshot) => {
-      const data = [];
-      querySnapshot.forEach((doc) => {data.push(doc.data())})
-      setUserList(data)
-      setIsUserListLoading(false)
-      // console.log("Current cities in CA: ", data);
-    });
-  }
+  useEffect(async () => {
+    // if (currentUser) {
+      const docSnap = await getDoc(doc(db, "UserDetailsV1", 'haKYa3fukWgS0atcs7O21nF1xq72'));
 
-  useEffect(() => {
-    SearchContent()
+      if (docSnap.exists()) {
+        setProfileData(docSnap.data())
+        console.log(docSnap.data())
+        setIsProfileDataLoading(false)
+      }
+    // }
   }, [])
   
 
@@ -64,7 +61,7 @@ export default function Home() {
 
       {/* <Person_SearchResult SearchQuery={SearchQuery}/> */}
 
-      {IsUserListLoading ? <p>loading...</p> : UserList.map((elem) => <Person Name={elem.username} Profile={elem.photoURL} />)}
+      {IsProfileDataLoading ? <p>loading...</p> : <p>got it</p>}
 
       {/* <Person Name={'raghav'} Profile={'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'} /> */}
       {/* <Person Name={'Test'} Profile={'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'} /> */}
