@@ -96,7 +96,7 @@ export default function login() {
                 </label>
                 <input
                   value={username}
-                  onChange={e => setUsername(toLowerCase(e.target.value))}
+                  onChange={e => setUsername(e.target.value)}
                   id="username"
                   name="username"
                   type="text"
