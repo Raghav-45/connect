@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 import { useAuth } from '../contexts/AuthContext'
 import useMounted from '../hooks/useMounted'
 import { FiSearch } from 'react-icons/fi'
+import { supabase } from './../lib/supabaseClient'
 
 import { db } from '../utils/init-firebase'
 
@@ -29,22 +30,56 @@ export default function login() {
 
   const RegisterUser = async (username, email, password) => {
     // console.log(MessageInput)
-    register(email, password)
-      .then(async res => {
-        !res.user?.photoURL && updateProfile(res.user, {photoURL: GenerateProfile(res.user.email)})
-        await setDoc(doc(db, "UserDetailsV1", res.user.uid), {
-          email: res.user.email,
-          photoURL: res.user?.photoURL ? res.user.photoURL : GenerateProfile(res.user.email),
-          username: username,
-          uid: res.user.uid,
-        })
-      })
-      .catch(error => {
-        console.log(error.message)
-      })
-      .finally(() => {
-        mounted.current && setIsSubmitting(false)
-      })
+
+    const { error } = await supabase.auth.signUp({
+      email: email,
+      password: password,
+      options: {
+        data: {
+          username: username
+        },
+      },
+    })
+
+    if (error) {
+      // toast({
+      //   description: error.message,
+      //   status: 'error',
+      //   duration: 9000,
+      //   isClosable: true,
+      // })
+      mounted.current && setIsSubmitting(false)
+      return
+    }
+
+    // TODO: Add Error Handling
+    // toast({
+    //   title: 'Account created.',
+    //   description: "We've created account for you.",
+    //   status: 'success',
+    //   duration: 3000,
+    //   isClosable: true,
+    // })
+    router.replace('/')
+
+    mounted.current && setIsSubmitting(false)
+
+    // register(email, password)
+    //   .then(async res => {
+    //     !res.user?.photoURL && updateProfile(res.user, {photoURL: GenerateProfile(res.user.email)})
+    //     await setDoc(doc(db, "UserDetailsV1", res.user.uid), {
+    //       email: res.user.email,
+    //       photoURL: res.user?.photoURL ? res.user.photoURL : GenerateProfile(res.user.email),
+    //       username: username,
+    //       uid: res.user.uid,
+    //     })
+    //   })
+    //   .catch(error => {
+    //     console.log(error.message)
+    //   })
+    //   .finally(() => {
+    //     mounted.current && setIsSubmitting(false)
+    //   })
   }
 
   function handleRedirectToOrBack() {

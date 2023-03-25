@@ -7,6 +7,7 @@ import { useRouter } from 'next/router'
 import { HiArrowSmLeft } from 'react-icons/hi'
 import { IoSend } from 'react-icons/io5'
 import { Message } from '@/components/Message'
+import { supabase } from '@/lib/supabaseClient'
 
 export default function Chat() {
   const router = useRouter()
@@ -30,55 +31,57 @@ export default function Chat() {
   }
 
   const SendMessage = async () => {
-    console.log(MessageInput)
+    // console.log(MessageInput)
+    const { error, data } = await supabase.from('messages').insert({content: 'hh', receiver: '74e5f8b1-5bd5-477a-a181-046ca3f9798f'})
+    console.log({ error, data })
 
-    await addDoc(collection(db, "Concept"), {
-      From: currentUser.uid,
-      To: ChattingWith.uid,
-      Message: MessageInput,
-      // CreatedAt: Timestamp.fromDate(new Date(date.getTime())),
-      CreatedAt: date.getTime()
-    }).finally(() => {
-      // setIsSubmitting(false);
-    });
-  }
-
-  const GetUserDetailsbyUsername = async (usern) => {
-    const q = query(collection(db, "UserDetailsV1"), where("username", "==", usern));
-
-    const querySnapshot = await getDocs(q).then(e => e.forEach((doc) => {setChattingWith(doc.data())}));
-    // querySnapshot.forEach((doc) => {
-    //   // doc.data() is never undefined for query doc snapshots
-    //   console.log(doc.id, " => ", doc.data());
+    // await addDoc(collection(db, "Concept"), {
+    //   From: currentUser.uid,
+    //   To: ChattingWith.uid,
+    //   Message: MessageInput,
+    //   // CreatedAt: Timestamp.fromDate(new Date(date.getTime())),
+    //   CreatedAt: date.getTime()
+    // }).finally(() => {
+    //   // setIsSubmitting(false);
     // });
-    // console.log(querySnapshot.forEach((doc) => {setChattingWith(doc.data())}))
   }
 
-  useEffect(() => {
-    if (ChattingWith?.uid) {
-      const q1 = query(collection(db, "Concept"), where("To", "==", ChattingWith.uid), where("From", "==", currentUser.uid));
-      const unsubscribe1 = onSnapshot(q1, (querySnapshot) => {
-        const data = [];
-        querySnapshot.forEach((doc) => {data.push(doc.data())})
-        setChatsByMe(data)
-        setIsChatByMeLoading(false)
-      });
+  // const GetUserDetailsbyUsername = async (usern) => {
+  //   const q = query(collection(db, "UserDetailsV1"), where("username", "==", usern));
 
-      const q2 = query(collection(db, "Concept"), where("From", "==", ChattingWith.uid), where("To", "==", currentUser.uid));
-      const unsubscribe2 = onSnapshot(q2, (querySnapshot) => {
-        const data = [];
-        querySnapshot.forEach((doc) => {data.push(doc.data())})
-        setChatsByThem(data)
-        setIsChatByThemLoading(false)
-      });
-    }
-  }, [ChattingWith])
+  //   const querySnapshot = await getDocs(q).then(e => e.forEach((doc) => {setChattingWith(doc.data())}));
+  //   // querySnapshot.forEach((doc) => {
+  //   //   // doc.data() is never undefined for query doc snapshots
+  //   //   console.log(doc.id, " => ", doc.data());
+  //   // });
+  //   // console.log(querySnapshot.forEach((doc) => {setChattingWith(doc.data())}))
+  // }
 
-  useEffect(() => {
-    if (username && username.length) {
-      GetUserDetailsbyUsername(username)
-    }
-  }, [username])
+  // useEffect(() => {
+  //   if (ChattingWith?.uid) {
+  //     const q1 = query(collection(db, "Concept"), where("To", "==", ChattingWith.uid), where("From", "==", currentUser.uid));
+  //     const unsubscribe1 = onSnapshot(q1, (querySnapshot) => {
+  //       const data = [];
+  //       querySnapshot.forEach((doc) => {data.push(doc.data())})
+  //       setChatsByMe(data)
+  //       setIsChatByMeLoading(false)
+  //     });
+
+  //     const q2 = query(collection(db, "Concept"), where("From", "==", ChattingWith.uid), where("To", "==", currentUser.uid));
+  //     const unsubscribe2 = onSnapshot(q2, (querySnapshot) => {
+  //       const data = [];
+  //       querySnapshot.forEach((doc) => {data.push(doc.data())})
+  //       setChatsByThem(data)
+  //       setIsChatByThemLoading(false)
+  //     });
+  //   }
+  // }, [ChattingWith])
+
+  // useEffect(() => {
+  //   if (username && username.length) {
+  //     GetUserDetailsbyUsername(username)
+  //   }
+  // }, [username])
   
   
   if ( IsChatByThemLoading ) {return (<div>Loading...</div>)}

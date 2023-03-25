@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { FiSearch } from 'react-icons/fi'
 import { Person } from '@/components/Person';
 import { Person_SearchResult } from '@/components/Person_SearchResult';
+import { supabase } from '@/lib/supabaseClient'
 
 export default function Home() {
   const [ShowSearchBox, setShowSearchBox] = useState(false)
@@ -24,28 +25,19 @@ export default function Home() {
     const c = ['0071FF','2CB539','FA4083','FFB60A']
     return c[Math.floor(Math.random()*c.length)]
   }
-  
-  const { currentUser } = useAuth()
 
-  const SearchContent = async () => {
-    const qm1 = query(collection(db, "UserDetailsV1"));
-    const unsub = onSnapshot(qm1, (querySnapshot) => {
-      const data = [];
-      querySnapshot.forEach((doc) => {data.push(doc.data())})
-      setUserList(data)
-      setIsUserListLoading(false)
-      // console.log("Current cities in CA: ", data);
-    });
-  }
+  // const sendMessage = async () => {
+  //   const { error, data } = await supabase.from('messages').insert({content: 'message'})
+  //   console.log({ error, data })
+  // }
 
-  useEffect(() => {
-    SearchContent()
-  }, [])
-  
+  // useEffect(() => {
+  //   sendMessage()
+  // }, [])
 
-  if (!currentUser?.uid.length) {
-    return (<p>loading...</p>)
-  }
+  // if (!currentUser?.uid.length) {
+  //   return (<p>loading...</p>)
+  // }
 
   return (
     <div className='h-screen pt-[24px] px-[20px] bg-gradient-to-tr from-[#26292F06] to-[#353D4C12]'>
@@ -59,12 +51,12 @@ export default function Home() {
             <input ref={inputRef} value={SearchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder='@username' className='flex-1 w-[0px] h-[18px] outline-none transition-all duration-500'/>
           </div>
         </div> */}
-        <AvatarIcon Image={currentUser.photoURL}/>
+        {/* <AvatarIcon Image={currentUser.photoURL}/> */}
       </div>
 
       {/* <Person_SearchResult SearchQuery={SearchQuery}/> */}
 
-      {IsUserListLoading ? <p>loading...</p> : UserList.map((elem) => <Person Name={elem.username} Profile={elem.photoURL} />)}
+      {/* {IsUserListLoading ? <p>loading...</p> : UserList.map((elem) => <Person Name={elem.username} Profile={elem.photoURL} />)} */}
 
       {/* <Person Name={'raghav'} Profile={'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'} /> */}
       {/* <Person Name={'Test'} Profile={'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'} /> */}

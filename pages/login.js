@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { useAuth } from '../contexts/AuthContext'
 import useMounted from '../hooks/useMounted'
 import { FiSearch } from 'react-icons/fi'
+import { supabase } from './../lib/supabaseClient'
 
 export default function login() {
   const router = useRouter()
@@ -13,6 +14,38 @@ export default function login() {
   // const mounted = useRef(false)
   // const location = useLocation()
   const mounted = useMounted()
+
+  const handleLogin = async (email, password) => {
+    // your login logic here
+    setIsSubmitting(true)
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    })
+
+    if (error) {
+      // toast({
+      //   description: error.message,
+      //   status: 'error',
+      //   duration: 9000,
+      //   isClosable: true,
+      // })
+      mounted.current && setIsSubmitting(false)
+      return
+    }
+
+    // TODO: Add Error Handling
+    // toast({
+    //   title: 'Login Success.',
+    //   description: "We've just Logged You In.",
+    //   status: 'success',
+    //   duration: 3000,
+    //   isClosable: true,
+    // })
+    router.replace('/')
+
+    mounted.current && setIsSubmitting(false)
+  }
 
   function handleRedirectToOrBack() {
     router.replace('/')
@@ -110,28 +143,27 @@ export default function login() {
                         console.log('Credentials not valid.')
                         return
                       }
-                      // your login logic here
-                      setIsSubmitting(true)
-                      login(email, password)
-                        .then(res => {
-                          handleRedirectToOrBack()
-                        })
-                        .catch(error => {
-                          console.log(error.message)
-                          // toast({
-                          //   description: error.message,
-                          //   status: 'error',
-                          //   duration: 9000,
-                          //   isClosable: true,
-                          // })
-                        })
-                        .finally(() => {
-                          // setTimeout(() => {
-                          //   mounted.current && setIsSubmitting(false)
-                          //   console.log(mounted.current)
-                          // }, 1000)
-                          mounted.current && setIsSubmitting(false)
-                        })
+                      handleLogin(email, password)
+                      // login(email, password)
+                      //   .then(res => {
+                      //     handleRedirectToOrBack()
+                      //   })
+                      //   .catch(error => {
+                      //     console.log(error.message)
+                      //     // toast({
+                      //     //   description: error.message,
+                      //     //   status: 'error',
+                      //     //   duration: 9000,
+                      //     //   isClosable: true,
+                      //     // })
+                      //   })
+                      //   .finally(() => {
+                      //     // setTimeout(() => {
+                      //     //   mounted.current && setIsSubmitting(false)
+                      //     //   console.log(mounted.current)
+                      //     // }, 1000)
+                      //     mounted.current && setIsSubmitting(false)
+                      //   })
                     }}
           >
             <input type="hidden" name="remember" defaultValue="true" />
