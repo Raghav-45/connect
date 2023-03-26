@@ -11,8 +11,9 @@ import { supabase } from '@/lib/supabaseClient'
 export default function Home() {
   const [ShowSearchBox, setShowSearchBox] = useState(false)
   const [SearchQuery, setSearchQuery] = useState('')
-  const [UserList, setUserList] = useState()
-  const [IsUserListLoading, setIsUserListLoading] = useState(true)
+  const [currentUser, setCurrentUser] = useState()
+  const [userList, setUserList] = useState()
+  const [isUserListLoading, setIsUserListLoading] = useState(true)
   const inputRef = useRef(null);
   const r = Array.from(Array(10).keys())
 
@@ -26,14 +27,24 @@ export default function Home() {
     return c[Math.floor(Math.random()*c.length)]
   }
 
-  // const sendMessage = async () => {
-  //   const { error, data } = await supabase.from('messages').insert({content: 'message'})
-  //   console.log({ error, data })
-  // }
+  const getUsersList = async () => {
+    const { error, data } = await supabase.from('profiles').select()
+    return data
+  }
 
-  // useEffect(() => {
-  //   sendMessage()
-  // }, [])
+  const getCurrentUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    return user
+  }
+
+  useEffect(() => {
+    getCurrentUser().then((e) => setCurrentUser(e))
+  }, [])
+
+  useEffect(() => {
+    getUsersList().then((e) => {setUserList(e); setIsUserListLoading(false); console.log(e)})
+  }, [])
+  
 
   // if (!currentUser?.uid.length) {
   //   return (<p>loading...</p>)
@@ -45,18 +56,18 @@ export default function Home() {
         <div className='flex-auto align-bottom my-auto mr-[8px] w-auto'>
           <h1 className='text-[28px] font-semibold'>Chat</h1>
         </div>
-        {/* <div onMouseLeave={(e) => setShowSearchBox(false)} onMouseEnter={(e) => setShowSearchBox(true)} style={{width: ShowSearchBox && '100%', flexGrow: ShowSearchBox && '1'}} className='flex border border-[#FCFCFD]/60 rounded-full h-[40px] w-[40px] bg-[#FCFCFD] transition-all duration-200'>
+        <div onMouseLeave={(e) => setShowSearchBox(false)} onMouseEnter={(e) => setShowSearchBox(true)} style={{width: ShowSearchBox && '100%', flexGrow: ShowSearchBox && '1'}} className='flex border border-[#FCFCFD]/60 rounded-full h-[40px] w-[40px] bg-[#FCFCFD] transition-all duration-200'>
           <div className='flex flex-row w-full text-[#130F26] m-auto ml-[11px] mr-[11px] text-left'>
             <FiSearch onClick={() => {inputRef.current.focus()}} className='flex-none h-[18px] w-[18px] mr-[8px]'/>
             <input ref={inputRef} value={SearchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder='@username' className='flex-1 w-[0px] h-[18px] outline-none transition-all duration-500'/>
           </div>
-        </div> */}
-        {/* <AvatarIcon Image={currentUser.photoURL}/> */}
+        </div>
+        <AvatarIcon Image={currentUser?.photo_url}/>
       </div>
 
       {/* <Person_SearchResult SearchQuery={SearchQuery}/> */}
 
-      {/* {IsUserListLoading ? <p>loading...</p> : UserList.map((elem) => <Person Name={elem.username} Profile={elem.photoURL} />)} */}
+      {isUserListLoading ? <p>loading...</p> : userList.map((elem) => elem.id != currentUser.id && <Person Name={elem.username} Profile={elem.photo_url} />)}
 
       {/* <Person Name={'raghav'} Profile={'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'} /> */}
       {/* <Person Name={'Test'} Profile={'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'} /> */}

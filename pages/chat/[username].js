@@ -12,90 +12,83 @@ import { supabase } from '@/lib/supabaseClient'
 export default function Chat() {
   const router = useRouter()
   const { username } = router.query
-  const { currentUser } = useAuth()
+  // const { currentUser } = useAuth()
+  const [currentUser, setCurrentUser] = useState()
   const date = new Date()
 
-  const [MessageInput, setMessageInput] = useState()
-  const [Chats, setChats] = useState()
-  const [IsLoading, setIsLoading] = useState(true)
-  const [ChattingWith, setChattingWith] = useState()
-  
-  const [ChatsByMe, setChatsByMe] = useState()
-  const [ChatsByThem, setChatsByThem] = useState()
-  const [IsChatByMeLoading, setIsChatByMeLoading] = useState(true)
-  const [IsChatByThemLoading, setIsChatByThemLoading] = useState(true)
+  const [messageInput, setMessageInput] = useState()
+  const [chats, setChats] = useState()
+  const [isLoading, setIsLoading] = useState(true)
+  const [chattingWith, setChattingWith] = useState()
 
   function SortByTime(a) {
-    a.sort(function(a, b){return a.CreatedAt - b.CreatedAt})
+    // a.sort(function(a, b){return a.created_at - b.created_at})
+    // a.sort(function(a, b){return (new Date(a.created_at)).getTime() - (new Date(b.created_at)).getTime()})
+    a.sort(function(a, b){return Date.parse(a.created_at) - Date.parse(b.created_at)})
     return a
   }
 
-  const SendMessage = async () => {
-    // console.log(MessageInput)
-    const { error, data } = await supabase.from('messages').insert({content: 'hh', receiver: '74e5f8b1-5bd5-477a-a181-046ca3f9798f'})
-    console.log({ error, data })
+  const getChatsBetween = async () => {
+    const getChatsSentByMe = async () => {
+      const { error, data } = await supabase.from('messages').select().match({sender: currentUser.id, receiver: chattingWith.id})
+      return data
+    }
 
-    // await addDoc(collection(db, "Concept"), {
-    //   From: currentUser.uid,
-    //   To: ChattingWith.uid,
-    //   Message: MessageInput,
-    //   // CreatedAt: Timestamp.fromDate(new Date(date.getTime())),
-    //   CreatedAt: date.getTime()
-    // }).finally(() => {
-    //   // setIsSubmitting(false);
-    // });
+    const getChatsReceivedByMe = async () => {
+      const { error, data } = await supabase.from('messages').select().match({sender: chattingWith.id, receiver: currentUser.id})
+      return data
+    }
+    return {SentByMe: await getChatsSentByMe(), ReceivedByMe: await getChatsReceivedByMe()}
   }
 
-  // const GetUserDetailsbyUsername = async (usern) => {
-  //   const q = query(collection(db, "UserDetailsV1"), where("username", "==", usern));
+  const SendMessage = async () => {
+    const { error, data } = await supabase.from('messages').insert({content: messageInput, receiver: chattingWith.id})
+  }
 
-  //   const querySnapshot = await getDocs(q).then(e => e.forEach((doc) => {setChattingWith(doc.data())}));
-  //   // querySnapshot.forEach((doc) => {
-  //   //   // doc.data() is never undefined for query doc snapshots
-  //   //   console.log(doc.id, " => ", doc.data());
-  //   // });
-  //   // console.log(querySnapshot.forEach((doc) => {setChattingWith(doc.data())}))
-  // }
+  const getUserbyUsername = async (usern) => {
+    const { error, data } = await supabase.from('profiles').select().eq('username', usern).maybeSingle()
+    return data
+  }
 
-  // useEffect(() => {
-  //   if (ChattingWith?.uid) {
-  //     const q1 = query(collection(db, "Concept"), where("To", "==", ChattingWith.uid), where("From", "==", currentUser.uid));
-  //     const unsubscribe1 = onSnapshot(q1, (querySnapshot) => {
-  //       const data = [];
-  //       querySnapshot.forEach((doc) => {data.push(doc.data())})
-  //       setChatsByMe(data)
-  //       setIsChatByMeLoading(false)
-  //     });
+  const getCurrentUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    return user
+  }
 
-  //     const q2 = query(collection(db, "Concept"), where("From", "==", ChattingWith.uid), where("To", "==", currentUser.uid));
-  //     const unsubscribe2 = onSnapshot(q2, (querySnapshot) => {
-  //       const data = [];
-  //       querySnapshot.forEach((doc) => {data.push(doc.data())})
-  //       setChatsByThem(data)
-  //       setIsChatByThemLoading(false)
-  //     });
-  //   }
-  // }, [ChattingWith])
+  function reloadChats() {
+    chattingWith && getChatsBetween().then((e) => setChats(e))
+  }
 
-  // useEffect(() => {
-  //   if (username && username.length) {
-  //     GetUserDetailsbyUsername(username)
-  //   }
-  // }, [username])
-  
-  
-  if ( IsChatByThemLoading ) {return (<div>Loading...</div>)}
+  useEffect(() => {
+    username && getUserbyUsername(username.toLowerCase()).then((e) => setChattingWith(e))
+  }, [username])
+
+  useEffect(() => {
+    chattingWith && getChatsBetween().then((e) => setChats(e))
+  }, [chattingWith])
+
+  useEffect(() => {
+    getCurrentUser().then((e) => setCurrentUser(e))
+    // console.log(SortByTime(chats.SentByMe.concat(chats.ReceivedByMe)))
+  }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => reloadChats(), 1000);
+    return () => {clearInterval(interval)}
+  }, [])
+
+  // if ( IsChatByThemLoading ) {return (<div>Loading...</div>)}
 
   return (
     <div className='flex flex-col h-screen pt-[0px] px-[0px] bg-gradient-to-tr from-[#26292F06] to-[#353D4C12]'>
       <div className='flex flex-none my-[0px] w-full h-[56px] bg-gradient-to-tr from-[#FCFCFD] to-[#FCFCFD]/80 drop-shadow-[0_0px_64px_rgba(15,15,15,0.10)]'>
         <Link href="/" className='my-auto'><HiArrowSmLeft className='h-[28px] w-[40px] text-[#130F26]'/></Link>
         <div className='flex-none rounded-full h-auto w-auto mx-[12px] my-[8px]'>
-          <img className='h-full w-full rounded-full' src={ChattingWith.photoURL} alt=''></img>
+          <img className='h-full w-full rounded-full' src={chattingWith?.photo_url} alt=''></img>
         </div>
         <div className='flex-auto relative py-[12px]'>
           <div className='flex flex-col h-full justify-between'>
-            <p className='font-semibold text-[16px] leading-[16px]'>{ChattingWith.username}</p>
+            <p className='font-semibold text-[16px] leading-[16px]'>{chattingWith?.username}</p>
             <div className='flex justify-between'>
               <p className='text-gray-500 text-[14px] leading-[14px]'>Active Now</p>
               <div className='flex justify-between order-last mr-[16px] hidden'>
@@ -107,7 +100,8 @@ export default function Chat() {
         </div>
       </div>
       <div className='flex flex-col flex-1 px-2 py-1 mb-[76px]'>
-        {SortByTime(ChatsByMe.concat(ChatsByThem)).map((elem) => <Message Message={elem.Message} CreatedAt={'1 Jan'} SentByMe={elem.From == currentUser.uid} />)}
+        {/* {SortByTime(ChatsByMe.concat(ChatsByThem)).map((elem) => <Message Message={elem.Message} CreatedAt={'1 Jan'} SentByMe={elem.From == currentUser.uid} />)} */}
+        {chats && chats?.ReceivedByMe && chats?.SentByMe && SortByTime(chats.SentByMe.concat(chats.ReceivedByMe)).map((elem) => <Message key={elem.id} Message={elem.content} CreatedAt={'1 Jan'} SentByMe={elem.sender == currentUser.id} />)}
       </div>
       {/* <div className='flex flex-none flex-row w-full h-[48px] px-[12px] mb-[12px]'>
         <input value={MessageInput} onChange={(e) => setMessageInput(e.target.value)} type='text' name='Message' className='h-full w-full pl-[20px] rounded-full' placeholder='Type message...' ></input>
@@ -117,8 +111,8 @@ export default function Chat() {
       </div> */}
       <footer className='bg-gradient-to-t from-black/10 to-black/5 backdrop-blur-lg fixed inset-x-0 bottom-0'>
         <div className='flex flex-none flex-row w-full h-[48px] px-[12px] my-[12px]'>
-          <input value={MessageInput} onChange={(e) => setMessageInput(e.target.value)} type='text' name='Message' className='h-full w-full pl-[20px] rounded-full' placeholder='Type message...' ></input>
-          <button onClick={() => {setMessageInput(''); SendMessage();}} className='flex-none flex ml-[8px] aspect-square border border-[#FCFCFD]/60 rounded-full cursor-pointer h-full w-auto bg-[#FCFCFD]' style={{'-webkit-tap-highlight-color': 'transparent'}} >
+          <input value={messageInput} onChange={(e) => setMessageInput(e.target.value)} type='text' name='Message' className='h-full w-full pl-[20px] rounded-full' placeholder='Type message...' ></input>
+          <button onClick={() => {setMessageInput(''); SendMessage(); reloadChats();}} className='flex-none flex ml-[8px] aspect-square border border-[#FCFCFD]/60 rounded-full cursor-pointer h-full w-auto bg-[#FCFCFD]' style={{'-webkit-tap-highlight-color': 'transparent'}} >
             <IoSend className='h-[18px] w-[18px] text-[#130F26] m-auto'/>
           </button>
         </div>
